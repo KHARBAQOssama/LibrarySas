@@ -1,6 +1,5 @@
 package database;
 
-
 import java.sql.*;
 public class Database {
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/jobify";
