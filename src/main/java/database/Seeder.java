@@ -1,8 +1,11 @@
 package database;
 
 import helpers.DataFaker;
+import helpers.DateGenerator;
+
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -89,15 +92,17 @@ public class Seeder {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             Random random = new Random();
+            Date date = new Date();
             for (int i = 0; i < number; i++) {
                 int quantity = DataFaker.faker.number().numberBetween(10,1000);
                 int randomAuthorIndex = random.nextInt(authorsLength);
                 int randomBookIndex = random.nextInt(booksLength);
-               // Date start_date = now();
-                preparedStatement.setString(1, DataFaker.faker.book().title());
-                preparedStatement.setString(2,"ISBN");
-                preparedStatement.setInt(3,quantity);
-                preparedStatement.setInt(4,quantity);
+                java.sql.Date startDate = new java.sql.Date(date.getTime());
+                java.sql.Date endDate = new java.sql.Date(DateGenerator.afterDaysFromNow(random.nextInt(30)).getTime());
+                preparedStatement.setString(1, bookISBNs.get(randomBookIndex));
+                preparedStatement.setInt(2,authorIds.get(randomAuthorIndex));
+                preparedStatement.setDate(3,startDate);
+                preparedStatement.setDate(4,endDate);
                 preparedStatement.executeUpdate();
             }
 

@@ -9,21 +9,22 @@ public class Main {
     static Database database = new Database();
     static Connection connection = database.getConnection();
     private static String[] homeOptions = {
-            "Display all books",
-            "Display available books",
-            "Search for a book",
             "Add new book",
-            "Update a book",
-            "Delete a book",
+            "Display available books",
+            "Search a book",
             "Borrow a book",
             "Return a book",
-            "Display statics",
+            "Display borrowed books",
+            "Delete a book",
+            "Update a book",
+            "View Statics"
             };
     public static Scanner console = new Scanner(System.in);
     public static void main(String[] args) {
         Seeder.seedUsers(20);
         Seeder.seedAuthors(20);
         Seeder.seedBooks(40);
+        Seeder.seedBorrowings(80);
 
         displayOptions(homeOptions);
         System.out.println("chose an operation");
