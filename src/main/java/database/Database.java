@@ -1,8 +1,10 @@
 package database;
 
+import Models.Model;
+
 import java.sql.*;
 public class Database {
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/jobify";
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/libraryminisas";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "";
     private static Connection connection;
@@ -28,6 +30,4 @@ public class Database {
             e.printStackTrace();
         }
     }
-
-
 }
