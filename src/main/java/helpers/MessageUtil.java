@@ -1,2 +1,5 @@
-package helpers;public class MessageUtil {
+package helpers;
+
+public class MessageUtil {
+
 }
