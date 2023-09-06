@@ -21,3 +21,15 @@ BEGIN
 END;;
 
 DELIMITER ;
+
+DELIMITER ;;
+CREATE TRIGGER bookBorrowed
+AFTER INSERT ON borrowedbooks
+FOR EACH ROW
+BEGIN
+    UPDATE books
+    SET available = available - 1
+    WHERE ISBN = NEW.book_ISBN;
+END;;
+
+DELIMITER ;

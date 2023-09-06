@@ -16,13 +16,12 @@ public class User extends Model{
     }
 
     @Override
-    protected User get(int id) {
+    protected User get() {
         return null;
     }
 
     @Override
-    protected User create() {
-        return null;
+    protected void create() {
     }
 
     @Override
@@ -36,7 +35,7 @@ public class User extends Model{
     }
 
     @Override
-    protected void delete(int id) {
+    protected void delete() {
 
     }
 }

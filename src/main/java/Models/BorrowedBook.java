@@ -21,13 +21,12 @@ public class BorrowedBook extends Model{
     }
 
     @Override
-    protected BorrowedBook get(int id) {
+    protected BorrowedBook get() {
         return null;
     }
 
     @Override
-    protected BorrowedBook create() {
-        return null;
+    protected void create() {
     }
 
     @Override
@@ -41,7 +40,7 @@ public class BorrowedBook extends Model{
     }
 
     @Override
-    protected void delete(int id) {
+    protected void delete() {
 
     }
 }
