@@ -4,11 +4,8 @@ import Management.Manager;
 import database.Database;
 import helpers.Displayer;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Objects;
+import java.sql.*;
+import java.util.*;
 
 public class Book extends Model{
     static Database database = new Database();
@@ -37,7 +34,7 @@ public class Book extends Model{
     public void setAvailable(int available){
         this.available = available;
     }
-    public void setALost(int lost){
+    public void setLost(int lost){
         this.lost = lost;
     }
     public Author getAuthor(){
@@ -52,6 +49,12 @@ public class Book extends Model{
     public int getQuantity(){
         return this.quantity;
     }
+    public int getAvailable(){
+        return this.available;
+    }
+    public int getLost(){
+        return this.lost;
+    }
     public Book[] availableBooks(){
         return null;
     }
@@ -59,24 +62,69 @@ public class Book extends Model{
     protected  Book[] getAll() {
         return null;
     }
+    public static List<Book> getBooks(String searchPhrase){
+        List<Book> books=new ArrayList<Book>();
 
-    @Override
-    protected Book get() {
-        Book book = new Book();
-        String sqlQuery = "SELECT * FROM books WHERE ISBN + ?";
+        String sqlQuery = "SELECT b.*, a.name AS author_name FROM books AS b JOIN authors AS a ON b.author_id = a.id";
+        if (searchPhrase != null){
+            sqlQuery += " WHERE (b.title LIKE ? OR a.name LIKE ?)";
+        }
+        sqlQuery += " AND b.deleted = ?";
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setString(1,this.ISBN);
+            if (searchPhrase != null) {
+                String searchParam = "%" + searchPhrase + "%";
+                preparedStatement.setString(1, searchParam);
+                preparedStatement.setString(2, searchParam);
+                preparedStatement.setBoolean(3, false);
+            }else{
+                preparedStatement.setBoolean(1, false);
+            }
+
             ResultSet resultSet = preparedStatement.executeQuery();
             while(resultSet.next()){
-                book.setTitle(resultSet.getString("title"));
-                book.setQuantity(resultSet.getInt("quantity"));
+                Book book = new Book();
+                Author author = new Author();
+                book.ISBN = resultSet.getString("ISBN");
+                book.title =resultSet.getString("title");
+                book.quantity = resultSet.getInt("quantity");
+                book.available = resultSet.getInt("available");
+                book.lost = resultSet.getInt("lost");
+                author.setName(resultSet.getString("author_name"));
+                book.author = author;
+
+                books.add(book);
             }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return books;
+    }
+
+    @Override
+    public Book get() {
+        Book book = new Book();
+        String sqlQuery = "SELECT b.*, a.name AS author_name FROM books AS b JOIN authors AS a ON b.author_id = a.id WHERE b.ISBN = ? AND b.deleted = ?";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1,this.ISBN);
+            preparedStatement.setBoolean(2,false);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()){
+                book.setTitle(resultSet.getString("title"));
+                book.setISBN(resultSet.getString("ISBN"));
+                book.setQuantity(resultSet.getInt("quantity"));
+                book.setAvailable(resultSet.getInt("available"));
+                Author author =new Author();
+                author.setName(resultSet.getString("author_name"));
+                book.setAuthor(author);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return book;
     }
 
     protected Book get(String ISBN){
@@ -87,6 +135,7 @@ public class Book extends Model{
         String checking = this.matchedISBN();
         switch (checking){
             case "match":
+
                 this.increaseQuantity();
                 System.out.println("This book already exist, and his quantity has been increased");
                 break;
@@ -94,23 +143,25 @@ public class Book extends Model{
                 System.out.println("This ISBN is owned by another book, correct your informations :");
                 Manager.addBook();
                 break;
-            case "not match":
+            case "create":
                 this.save();
                 break;
         }
-        Displayer.lastChoices();
+
     }
 
     protected String matchedISBN(){
 
         String sqlQuery = "SELECT * FROM books WHERE ISBN = ?";
         Book book = executeGetBookQuery(sqlQuery);
-        if (Objects.equals(book.getAuthor().getName(), this.author.getName()) && Objects.equals(book.getTitle(), this.title)){
+        if (book.getQuantity() != 0 && Objects.equals(book.getAuthor().getName(), this.author.getName()) && Objects.equals(book.getTitle(), this.title)){
+            System.out.println("matched");
             return "match";
-        }else if(Objects.equals(book.getISBN(), this.ISBN)){
+        }else if(book.getQuantity() != 0 && Objects.equals(book.getISBN(), this.ISBN)){
+            System.out.println("isbn match");
             return "ISBN match";
         }else{
-            return "not match";
+            return "create";
         }
 
     }
@@ -144,7 +195,42 @@ public class Book extends Model{
         }
     }
     @Override
-    protected Book update() {
+    public Book update() {
+        String sqlQuery = "UPDATE books SET ";
+        if(this.title != null){
+            sqlQuery += "title = ?";
+        }
+        if(this.quantity != 0){
+            sqlQuery += ", quantity = ?";
+            sqlQuery += ", available = ?";
+        }
+        if(this.author.getName() != null){
+            sqlQuery += ", author_id = ?";
+        }
+            sqlQuery += " WHERE ISBN = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            int count = 1;
+            if(this.title != null){
+                preparedStatement.setString(count,this.title);
+                count++;
+            }
+            if(this.quantity != 0){
+                preparedStatement.setInt(count,this.quantity);
+                preparedStatement.setInt(count+1,this.available);
+                count= count+2;
+            }
+            if(this.author.getName() != null){
+                preparedStatement.setInt(count,this.author.getId());
+                count++;
+            }
+            preparedStatement.setString(count,this.ISBN);
+            preparedStatement.executeUpdate();
+            System.out.println("Book has been updated successfully");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        Displayer.lastChoices();
         return null;
     }
 
@@ -175,7 +261,6 @@ public class Book extends Model{
             preparedStatement.setString(1,this.ISBN);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
-
                 book.setTitle(resultSet.getString("title"));
                 book.setISBN(resultSet.getString("ISBN"));
                 Author author = new Author();
@@ -184,6 +269,7 @@ public class Book extends Model{
                 book.setAuthor(author);
             }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
         return book;

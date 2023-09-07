@@ -1,6 +1,10 @@
 package helpers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
+import Models.Book;
 import library.Main;
 
 public class Displayer {
@@ -30,5 +34,26 @@ public class Displayer {
         }else{
             return;
         }
+    }
+
+    public static void displayBook(Book book){
+        System.out.println("Title : "+book.getTitle());
+        System.out.println("ISBN : "+book.getISBN());
+        System.out.println("Author : "+book.getAuthor().getName());
+        System.out.println("Quantity : "+book.getQuantity());
+        System.out.println("Available Books : "+book.getAvailable());
+        System.out.println("Lost Books: "+book.getLost());
+        System.out.println("-----------------------------------------");
+    }
+    public static void displayBooks(List<Book> books){
+        if(books.size() == 0){
+            System.out.println("There is no books for the moment");
+        }else{
+            for (Book book : books){
+                displayBook(book);
+            }
+        }
+
+        lastChoices();
     }
 }

@@ -44,6 +44,12 @@ public class Main {
             case 1:
                 Manager.addBook();
                 break;
+            case 2:
+                Manager.displayBooks();
+                break;
+            case 3:
+                Manager.searchBooks();
+                break;
             case 7:
                 Manager.deleteBook();
                 break;
