@@ -22,7 +22,7 @@ public class Seeder {
             for (int i = 0; i < number; i++) {
                 preparedStatement.setString(1, DataFaker.faker.name().fullName());
                 preparedStatement.setString(2, DataFaker.faker.numerify("#############"));
-                preparedStatement.setInt(3, DataFaker.faker.number().numberBetween(11111111, 99999999));
+                preparedStatement.setInt(3, DataFaker.faker.number().numberBetween(11111111, 2147483600));
 
                 // Execute the insert statement
                 preparedStatement.executeUpdate();
@@ -86,21 +86,21 @@ public class Seeder {
     public static  void seedBorrowings(int number){
         String sqlQuery = "INSERT INTO borrowedBooks (book_ISBN, user_id, start_date, end_date) VALUES (?,?,?,?);";
         List<String> bookISBNs = getISBNs();
-        List<Integer> authorIds = getIds("authors");
+        List<Integer> userIds = getIds("users");
         int booksLength = bookISBNs.size();
-        int authorsLength = authorIds.size();
+        int authorsLength = userIds.size();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             Random random = new Random();
             Date date = new Date();
             for (int i = 0; i < number; i++) {
-                int quantity = DataFaker.faker.number().numberBetween(10,1000);
+
                 int randomAuthorIndex = random.nextInt(authorsLength);
                 int randomBookIndex = random.nextInt(booksLength);
                 java.sql.Date startDate = new java.sql.Date(date.getTime());
                 java.sql.Date endDate = new java.sql.Date(DateGenerator.afterDaysFromNow(random.nextInt(30)).getTime());
                 preparedStatement.setString(1, bookISBNs.get(randomBookIndex));
-                preparedStatement.setInt(2,authorIds.get(randomAuthorIndex));
+                preparedStatement.setInt(2,userIds.get(randomAuthorIndex));
                 preparedStatement.setDate(3,startDate);
                 preparedStatement.setDate(4,endDate);
                 preparedStatement.executeUpdate();

@@ -25,10 +25,10 @@ public class Main {
             };
 
     public static void main(String[] args) {
-        // Seeder.seedUsers(20);
-        // Seeder.seedAuthors(20);
-        // Seeder.seedBooks(40);
-        // Seeder.seedBorrowings(80);
+        //Seeder.seedUsers(20);
+        //Seeder.seedAuthors(20);
+        //Seeder.seedBooks(40);
+        //Seeder.seedBorrowings(160);
 
         beginProcess();
     }
@@ -49,6 +49,12 @@ public class Main {
                 break;
             case 3:
                 Manager.searchBooks();
+                break;
+            case 4:
+                Manager.borrowBook();
+                break;
+            case 5:
+                Manager.returnBook();
                 break;
             case 7:
                 Manager.deleteBook();
