@@ -12,7 +12,12 @@ public class Author extends Model {
     private int id;
     private String name;
     private boolean deleted;
+    public  Author(){
 
+    }
+    public  Author(String name){
+        this.name = name;
+    }
     public void setName(String name){
         this.name = name;
     }
@@ -104,7 +109,21 @@ public class Author extends Model {
         }
         return author;
     }
-
+    public static int getAuthors(){
+        String sqlQuery = "SELECT COUNT(*) AS count FROM authors WHERE deleted = 0";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int count = 0;
+            while(resultSet.next()){
+                count = resultSet.getInt("count");
+            }
+            return count;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
     public Author createIfNotExist(){
         Author existAuthor = get(this.name);
         if(existAuthor.getId() == 0) {

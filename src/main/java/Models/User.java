@@ -22,7 +22,11 @@ public class User extends Model{
     public  User(String newName,String newPhone){
 
     }
-
+    public  User(String newName,String newPhone,int newMembership_number){
+        this.name = newName;
+        this.phone = newPhone;
+        this.membership_number = newMembership_number;
+    }
     public int getId() {
         return id;
     }
@@ -100,6 +104,21 @@ public class User extends Model{
         return null;
     }
 
+    public static int getUsers(){
+        String sqlQuery = "SELECT COUNT(*) AS count FROM users WHERE deleted = 0";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int count = 0;
+            while(resultSet.next()){
+                count = resultSet.getInt("count");
+            }
+            return count;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     protected void delete() {
 

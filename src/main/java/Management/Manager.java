@@ -5,14 +5,12 @@ import Models.Book;
 import Models.BorrowedBook;
 import Models.User;
 import helpers.DataFaker;
+import helpers.DateGenerator;
 import helpers.Displayer;
 import helpers.Validator;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.Date;
+import java.util.*;
 
 public class Manager {
     public static Scanner console = new Scanner(System.in);
@@ -47,8 +45,6 @@ public class Manager {
 
         book.setAuthor(author);
         book.create();
-
-        System.out.println("Book has been added successfully");
         Displayer.lastChoices();
     }
     public static void deleteBook(){
@@ -130,9 +126,21 @@ public class Manager {
         User member = getMember();
 
         BorrowedBook borrowedBook = borrowBook(book,member);
-        System.out.println("DONE == "+member.getName()+ " remember that "+member.getMembership_number()+ " is your Membership Number");
-        System.out.println("Info == you have borrowed the book with the title"+book.getTitle()+ " But you have to return it before "+borrowedBook.getEnd_date());
+        System.out.println("DONE \n== "+member.getName()+ " remember that \n"+member.getMembership_number()+ " \nis your Membership Number");
+        System.out.println("Info \n== you have borrowed the book with the title :\n"+book.getTitle()+ " \nBut you have to return it before "+borrowedBook.getEnd_date());
 
+        Displayer.lastChoices();
+    }
+    public static void borrowedBooks(){
+        List<BorrowedBook> borrowedBooks = BorrowedBook.getBorrowedBooks();
+        for (BorrowedBook book : borrowedBooks){
+            System.out.println("Book title:   "+ book.getBook().getTitle());
+            System.out.println("Book author:   "+ book.getBook().getAuthor().getName());
+            System.out.println("Book ISBN:   "+ book.getBook().getISBN());
+            System.out.println("Borrower name:   "+ book.getUser().getName());
+            System.out.println("Borrowing date:   "+ book.getStart_date());
+            System.out.println("---------------------------------------------");
+        }
         Displayer.lastChoices();
     }
     public static Book getBook(){
@@ -192,8 +200,9 @@ public class Manager {
         return newMember;
     }
     public static BorrowedBook borrowBook(Book book,User member){
+        Random random = new Random();
         Date start_date = new Date();
-        Date end_Date = new Date();
+        Date end_Date = DateGenerator.afterDaysFromNow(random.nextInt(30));
         BorrowedBook borrowedBook = new BorrowedBook(book,member,start_date,end_Date);
         borrowedBook.create();
         borrowedBook = borrowedBook.get();
@@ -205,6 +214,14 @@ public class Manager {
         BorrowedBook borrowedBook = borrowBook(book,borrower);
         borrowedBook.returnBook();
         System.out.println("you have returned the book successfully ");
+        Displayer.lastChoices();
+    }
+    public static void displayStatics(){
+        System.out.println("Borrowed Books :  " + BorrowedBook.getBorrowedBooksCount());
+        System.out.println("Available Books :  " + Book.getAvailableBooksCount());
+        System.out.println("Lost Books :  " + Book.getLostBooksCount());
+        System.out.println("Authors :  " + Author.getAuthors());
+        System.out.println("Members :  " + User.getUsers());
         Displayer.lastChoices();
     }
 }

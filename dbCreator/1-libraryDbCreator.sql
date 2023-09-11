@@ -44,56 +44,16 @@ CREATE TABLE IF NOT EXISTS BorrowedBooks (
 );
 
 
--- triggers to facilate the available books calculation 
-
 DELIMITER ;;
 CREATE TRIGGER book_borrowed
 AFTER INSERT ON borrowedbooks
 FOR EACH ROW
 BEGIN
-    UPDATE books
-    SET available = available - 1
-    WHERE ISBN = NEW.book_ISBN;
-END;;
-
-DELIMITER ;
-
-DELIMITER ;;
-CREATE TRIGGER borrowedbooks_updated
-BEFORE UPDATE ON borrowedbooks
-FOR EACH ROW
-BEGIN
-    IF (NEW.returned = 1) THEN
-        IF (NEW.lost = 0) THEN
-            UPDATE books
-            SET available = available + 1
-            WHERE ISBN = NEW.book_ISBN;
-        ELSE
-            UPDATE books
-            SET available = available + 1,
-                lost = lost - 1
-            WHERE ISBN = NEW.book_ISBN;
-        END IF;
-    ELSEIF (NEW.lost = 1) THEN
+    IF NEW.returned = 0 THEN
         UPDATE books
-        SET lost = lost + 1
+        SET available = available - 1
         WHERE ISBN = NEW.book_ISBN;
     END IF;
-END;;
-
+END;;   
 DELIMITER ;
--- Event to make a book lost if the end date passed
 
-DELIMITER ;;
-CREATE EVENT checkLostBooksEvery2Hours
-ON SCHEDULE EVERY 2 HOUR
-DO
-BEGIN
-    UPDATE BorrowedBooks
-    SET lost = TRUE
-    WHERE end_date < NOW() AND lost = FALSE AND returned = FALSE;
-END;
-;;
-DELIMITER ;
--- command that turn on the event 
-SET GLOBAL event_scheduler="ON"

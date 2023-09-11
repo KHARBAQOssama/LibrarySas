@@ -98,7 +98,7 @@ public class Seeder {
                 int randomAuthorIndex = random.nextInt(authorsLength);
                 int randomBookIndex = random.nextInt(booksLength);
                 java.sql.Date startDate = new java.sql.Date(date.getTime());
-                java.sql.Date endDate = new java.sql.Date(DateGenerator.afterDaysFromNow(random.nextInt(30)).getTime());
+                java.sql.Date endDate = new java.sql.Date(DateGenerator.afterDaysFromNow(random.nextInt(40)-10).getTime());
                 preparedStatement.setString(1, bookISBNs.get(randomBookIndex));
                 preparedStatement.setInt(2,userIds.get(randomAuthorIndex));
                 preparedStatement.setDate(3,startDate);

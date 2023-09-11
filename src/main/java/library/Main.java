@@ -1,6 +1,7 @@
 package library;
 
 import Management.Manager;
+import Models.BorrowedBook;
 import database.Database;
 import database.Seeder;
 import helpers.Displayer;
@@ -21,21 +22,22 @@ public class Main {
             "Display borrowed books",
             "Delete a book",
             "Update a book",
-            "View Statics"
+            "View Statics",
+            "exit"
             };
 
     public static void main(String[] args) {
-        //Seeder.seedUsers(20);
-        //Seeder.seedAuthors(20);
-        //Seeder.seedBooks(40);
-        //Seeder.seedBorrowings(160);
-
+          /*Seeder.seedUsers(250);
+          Seeder.seedAuthors(250);
+          Seeder.seedBooks(250);
+          Seeder.seedBorrowings(10000);*/
+        BorrowedBook.checkLost();
         beginProcess();
     }
 
     public static void beginProcess(){
         Displayer.displayOptions(mainOptions);
-        System.out.println("chose an operation : ");
+        System.out.println("choose an operation : ");
         int choice = console.nextInt();
         runOperation(choice);
     }
@@ -56,15 +58,23 @@ public class Main {
             case 5:
                 Manager.returnBook();
                 break;
+            case 6:
+                Manager.borrowedBooks();
+                break;
             case 7:
                 Manager.deleteBook();
                 break;
             case 8:
                 Manager.updateBook();
                 break;
+            case 9:
+                Manager.displayStatics();
+                break;
+            case 10:
+                break;
             default:
-                System.out.println("no implementation yet");
-                Displayer.lastChoices();
+                System.out.println("please choose an existing option");
+                beginProcess();
                 break;
         }
     }

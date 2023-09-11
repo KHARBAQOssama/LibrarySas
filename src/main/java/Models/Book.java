@@ -17,7 +17,14 @@ public class Book extends Model{
     private int lost ;
     private Author author;
     private boolean deleted;
+    public  Book(){
 
+    }
+    public Book(String title,String ISBN, Author author){
+        this.title = title;
+        this.ISBN = ISBN;
+        this.author = author;
+    }
     public void setISBN(String ISBN){
         this.ISBN = ISBN;
     }
@@ -140,11 +147,12 @@ public class Book extends Model{
                 System.out.println("This book already exist, and his quantity has been increased");
                 break;
             case "ISBN match":
-                System.out.println("This ISBN is owned by another book, correct your informations :");
+                System.out.println("This ISBN is owned by another book, correct your information :");
                 Manager.addBook();
                 break;
             case "create":
                 this.save();
+                System.out.println("Book has been added successfully");
                 break;
         }
 
@@ -155,10 +163,8 @@ public class Book extends Model{
         String sqlQuery = "SELECT * FROM books WHERE ISBN = ?";
         Book book = executeGetBookQuery(sqlQuery);
         if (book.getQuantity() != 0 && Objects.equals(book.getAuthor().getName(), this.author.getName()) && Objects.equals(book.getTitle(), this.title)){
-            System.out.println("matched");
             return "match";
         }else if(book.getQuantity() != 0 && Objects.equals(book.getISBN(), this.ISBN)){
-            System.out.println("isbn match");
             return "ISBN match";
         }else{
             return "create";
@@ -256,6 +262,7 @@ public class Book extends Model{
     }
     private Book executeGetBookQuery(String sqlQuery){
         Book book = new Book();
+
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1,this.ISBN);
@@ -263,6 +270,7 @@ public class Book extends Model{
             while (resultSet.next()){
                 book.setTitle(resultSet.getString("title"));
                 book.setISBN(resultSet.getString("ISBN"));
+                book.setQuantity(resultSet.getInt("quantity"));
                 Author author = new Author();
                 author.setId(resultSet.getInt("author_id"));
                 author.get();
@@ -273,5 +281,35 @@ public class Book extends Model{
             throw new RuntimeException(e);
         }
         return book;
+    }
+    public static  int getAvailableBooksCount(){
+        String sqlQuery = "SELECT SUM(available) AS count FROM books WHERE deleted = 0";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int count = 0;
+            while(resultSet.next()){
+                count = resultSet.getInt("count");
+            }
+            return count;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+    public static  int getLostBooksCount(){
+        String sqlQuery = "SELECT SUM(lost) AS count FROM books WHERE deleted = 0";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int count = 0;
+            while(resultSet.next()){
+                count = resultSet.getInt("count");
+            }
+            return count;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }
